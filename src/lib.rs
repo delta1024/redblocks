@@ -17,7 +17,7 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
-redblocks = 0.1.3
+redblocks = 0.1.2
 ``
 # Building your own widgets
 Currently doing anything at all with [redblocks] requires you to creat your own custom plugins.
