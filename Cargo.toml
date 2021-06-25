@@ -3,6 +3,8 @@ name = "redblocks"
 version = "0.1.2"
 authors = ["Jacob Stannix <jakestannix at gmail dot com>"]
 edition = "2018"
+licence = "GPL-3.0-or-later"
+description = "modular status bar for dwm and the like written in rust"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
