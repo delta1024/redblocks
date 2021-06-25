@@ -17,8 +17,8 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
-redblocks = 0.1.2
-``
+redblocks = 0.1.3
+```
 # Building your own widgets
 Currently doing anything at all with [redblocks] requires you to creat your own custom plugins.
 
@@ -28,33 +28,37 @@ First you will need to create a struct to hold the information you wish displaye
  # Example Widget
 For the following example we are going to be creating a simple widget that couts how many seconds the status blocks have been runing.
 ```
-// for creating the plugin
 use redblocks::Update;
-// for drawing the statusblocks
+
 use redblocks::{Widget, start_bar};
 use std::fmt::{self,Display};
 
 struct Counter(u64);
 
 impl Counter {
+
     fn new() -> Box<Self> {
         Box::new(Self(0))
     }
+
 }
 
 impl Display for Counter {
+
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
 impl Update for Counter {
+
     fn refresh(&mut self) {
         self.0 = self.0 + 1;
     }
 }
 
 fn main() {
+
     // set the update intervel in seconds
     let update_intervel = 1;
 
@@ -110,6 +114,7 @@ pub trait Update: Display {
 }
 
 #[macro_export]
+/// constructs the [StatusBar] type as well as setting up the main event loop
 macro_rules! start_bar  {
     ($($v:ident), +) => {
 
