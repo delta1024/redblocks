@@ -9,3 +9,4 @@ description = "modular status bar for dwm and the like written in rust"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "0.4"
