@@ -1,7 +1,9 @@
 /*!# About
 Redblocks is a library inspired by xmobar for creating your own status blocks that writes to XROOTNAME?. Primaraly intended for along side the [Penrose] library.
 
-# Requirments
+# Dependencies 
+* xsetroot
+# Usage Requirments
 Using redblock is intended to be simple, baring creating custom modules; if this is not the case I would consider that a bug and would engorage you to raise the issue as such.
 
 The one caviate to the aformentioned principle is a basic understanding of rust is required to setup and configure your statusbar. You can paruse the [reference] for any concepts you don't understand (baring anyghing specific to [redblocks]). For a more compleate introduction to the language I would encorage you to check out [The Book]. a great place to start learing is [here]; if you need help installing Rust please see the [installation guide].
@@ -33,7 +35,7 @@ use redblocks::Update;
 use redblocks::time::TimePlugin;
 
 use redblocks::{Widget, start_bar};
-use std::fmt::{self,Display};
+use std::fmt::{self, Display};
 
 struct Counter(u64);
 
@@ -80,10 +82,10 @@ fn main() {
 ```
 
 
-#Todo
-* allow custom delimater
-* internelxset root function;
+# Wishlist
+* internel xset root function
 */
+
 
 #[doc(inline)]
 pub mod time;
@@ -120,6 +122,15 @@ impl Widget {
             intervel: Duration::from_secs(intervel),
             elapsed: Instant::now(),
         }
+    }
+
+        /// keep the duration to above 500ms as this is the sleep duration for the main event loop
+    pub fn new_mili(content: Box<dyn Update>, intervel: u64) -> Widget {
+	Widget {
+	    content,
+	    intervel: Duration::from_millis(intervel),
+	    elapsed: Instant::now(),
+	}
     }
     pub fn update(&mut self) {
         if self.elapsed.elapsed() >= self.intervel {
