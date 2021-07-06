@@ -190,7 +190,7 @@ dependencies = [
 
 [[package]]
 name = "redblocks"
-version = "0.1.43"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "sysinfo",

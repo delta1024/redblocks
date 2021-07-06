@@ -1,5 +1,5 @@
 /*!# About
-Redblocks is a library inspired by xmobar for creating your own status blocks that writes to XROOTNAME?. Primaraly intended for along side the [Penrose] library.
+Redblocks is a library inspired by dwmblocks for creating your own status blocks that writes to XROOTNAME?. Primaraly intended for along side the [Penrose] library.
 
 # Dependencies 
 * xsetroot
@@ -19,7 +19,7 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
-redblocks = 0.1.43
+redblocks = 0.2.0
 ```
 # Using Redblocks
 Redblocks works on the principle of Widgets and Plugins. Widgets handles displaying the Plugin and timeing information. Plugins handle the actual data you watnt to display as how that information should be updated.
