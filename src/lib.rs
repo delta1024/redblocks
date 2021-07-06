@@ -19,85 +19,44 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
-redblocks = 0.1.4
-```
-# Building your own plugins
-Currently doing anything at all with [redblocks] requires you to creat your own custom plugins.
+redblocks = 0.1.43
+```R
+# Using Redblocks
+Redblocks works on the principle of Widgets and Plugins. Widgets handles displaying the Plugin and timeing information. Plugins handle the actual data you watnt to display as how that information should be updated.
+Currently the following plugins are avalible, please see their respecive module for more information:
+* cpu
+* memory usage
+* time display
 
-First you will need to create a struct to hold the information you wish displayed in the status blocks. When implementing the plugin's new() function it is importatn that it return itself in a [`Box`]. Once you have created your status plugin you will need to implement both the [`std::fmt::Display`] and [Update] traits; the implementation of which can be found below.
-[Update]: crate::Update
-
-
- # Example Widget
-For the following example we are going to be creating a simple widget that couts how many seconds the status blocks have been runing.
+## Example
 ```no_run
-use redblocks::Update;
-use redblocks::time::TimePlugin;
+#[macro_use]
+extern crate redblocks;
 
-use redblocks::{Widget, start_bar};
-use std::fmt::{self, Display};
-
-struct Counter(u64);
-
-impl Counter {
-
-    fn new() -> Box<Self> {
-        Box::new(Self(0))
-    }
-
-}
-
-impl Display for Counter {
-
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl Update for Counter {
-
-    fn refresh(&mut self) {
-        self.0 = self.0 + 1;
-    }
-}
+use redblocks::{Widget, plugins::{TimePlugin, MemPlugin, CpuPlugin}};
 
 fn main() {
+    let time = Widget::new(TimePlugin::new("%A %D %_I:%M:%S %P"), 1);
+   
+    let cpu = Widget::new_mili(CpuPlugin::new(), 750);
+    
+    let mem = Widget::new(MemPlugin::new(), 2);
 
-    // set the update intervel in seconds
-    let update_intervel = 1;
+    let plugins = vec![mem, cpu, time];
 
-    // create the plugin
-    let counter_plugin = Counter::new();
-
-    // create the widget
-    let counter_widget = Widget::new(counter_plugin, update_intervel);
-    let time = Widget::new(Box::new(TimePlugin::default()), update_intervel);
-    let plugins = vec![counter_widget, time];
-
-    // to change the delimater between plugins use start_bar!{plugins, "delimater"}
     start_bar!(plugins);
-
 }
-
 ```
-
 
 # Wishlist
 * internel xset root function
 */
 
 
-#[doc(inline)]
-pub mod time;
-
-#[doc(inline)]
-pub mod cpu;
-
-#[doc(inline)]
-pub mod mem;
-
 use std::fmt::Display;
 use std::time::{Duration, Instant};
+
+pub mod plugins;
 
 /// Vec\<Widget\>
 pub type StatusBar = Vec<Widget>;
@@ -105,7 +64,7 @@ pub type StatusBar = Vec<Widget>;
 /// Holds [StatusBar]
 pub struct Bar(pub StatusBar);
 
-/// Handles timing and updating
+/// Handles timing and calling updates for plugins 
 pub struct Widget {
     /// holds the plugin
     pub content: Box<dyn Update>,
@@ -147,7 +106,7 @@ pub trait Update: Display {
 }
 
 #[macro_export]
-/// constructs the [StatusBar] type as well as setting up the main event loop
+/// Constructs the [StatusBar] type as well as setting up the main event loop
 macro_rules! start_bar  {
     {$v:tt, $x:tt} => {
 
