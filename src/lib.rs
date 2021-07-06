@@ -27,6 +27,7 @@ Currently the following plugins are avalible, please see their respecive module 
 * cpu
 * memory usage
 * time display
+* battery percent
 
 ## Example
 ```no_run
