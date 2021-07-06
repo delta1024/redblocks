@@ -39,10 +39,13 @@ impl Update for Counter {
 ```
 */
 use crate::Update;
+use battery::{
+    units::{ratio::percent, thermodynamic_temperature::degree_celsius},
+    Battery, Manager,
+};
+use chrono::{DateTime, Local};
 use std::fmt;
 use sysinfo::{ProcessorExt, System, SystemExt};
-use chrono::{Local, DateTime};
-use battery::{Manager, Battery};
 
 #[doc(inline)]
 pub use chrono::format::strftime;
@@ -57,7 +60,7 @@ use redblocks::{Widget, plugins::BatPlugin};
 
 fn main() {
     let widgets = vec![
-        Widget::new(BatPlugin::new(), 1),
+        Widget::new(BatPlugin::new_percent(), 1),
     ];
 
     start_bar!(widgets);
@@ -68,44 +71,82 @@ fn main() {
 pub struct BatPlugin {
     manager: Manager,
     batteries: Vec<Battery>,
+    format: BatOut,
+    display: String,
 }
 
+enum BatOut {
+    Celsius,
+    Percent,
+}
 impl BatPlugin {
-    pub fn new () -> Box<BatPlugin> {
-	let manager = Manager::new().unwrap();
-	let batteries = manager.batteries().unwrap();
-	let batteries = {
-	    let mut vec = Vec::new();
-	    for i in batteries {
-		vec.push(i.unwrap());
-	    }
-	    vec
-	};
-	Box::new(
-	    BatPlugin {
-		manager,
-		batteries,
-	    }
-	)
+    pub fn new_percent() -> Box<BatPlugin> {
+        let manager = Manager::new().unwrap();
+        let batteries = manager.batteries().unwrap();
+        let batteries = {
+            let mut vec = Vec::new();
+            for i in batteries {
+                vec.push(i.unwrap());
+            }
+            vec
+        };
+        Box::new(BatPlugin {
+            manager,
+            batteries,
+            format: BatOut::Percent,
+            display: String::new(),
+        })
+    }
+    pub fn new_celsius() -> Box<BatPlugin> {
+        let manager = Manager::new().unwrap();
+        let batteries = manager.batteries().unwrap();
+        let batteries = {
+            let mut vec = Vec::new();
+            for i in batteries {
+                vec.push(i.unwrap());
+            }
+            vec
+        };
+        Box::new(BatPlugin {
+            manager,
+            batteries,
+            format: BatOut::Celsius,
+            display: String::new(),
+        })
     }
 }
- 
-use battery::units::ratio::percent;
+
 impl fmt::Display for BatPlugin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-	let mut m = String::new();
-	for i in &self.batteries { 
-	    m.push_str(&i.state_of_charge().get::<percent>().to_string());
-	}
-	write!(f, "{} %", m)
+        write!(f, "{}", self.display)
     }
 }
 
 impl Update for BatPlugin {
     fn refresh(&mut self) {
-	for i in &mut self.batteries {
-	    self.manager.refresh(i).unwrap();
-	}
+        for i in &mut self.batteries {
+            self.manager.refresh(i).unwrap();
+        }
+        let format = match self.format {
+            BatOut::Percent => {
+                let mut string = String::new();
+                for i in &self.batteries {
+                    string.push_str(format!("{} %", i.state_of_charge().get::<percent>()).as_str());
+                }
+                string
+            }
+            BatOut::Celsius => {
+                let mut string = String::new();
+
+                for i in &self.batteries {
+                    if let Some(value) = i.temperature() {
+                        string.push_str(format!("{} °C", value.get::<degree_celsius>()).as_str());
+                    }
+                }
+                string
+            }
+        };
+        self.display = format;
     }
 }
 /** # Cpu Monitor
@@ -153,7 +194,6 @@ impl Update for CpuPlugin {
         self.used.refresh_cpu();
     }
 }
-
 
 /**# Prints Ram usage
 ## Example
@@ -204,8 +244,6 @@ impl Update for MemPlugin {
     }
 }
 
-
-
 /** Displays the current time.
 
 
@@ -221,7 +259,7 @@ use redblocks::{plugins::TimePlugin, Widget};
 fn main() {
     let time = Box::new(TimePlugin::default());
     let time = vec![Widget::new(time, 1)];
-    
+
     start_bar!(time);
 }
 ```
@@ -241,44 +279,45 @@ fn main() {
     start_bar!(time);
 }
 ```
-*/ 
+*/
 pub struct TimePlugin {
     /// holds the time formated as a string
-   pub time: String,
+    pub time: String,
     /// holds the formating string
-   pub format: String,
-
+    pub format: String,
 }
-
 
 impl TimePlugin {
     pub fn new(format: &str) -> Box<Self> {
         let time: DateTime<Local> = Local::now();
-	let time = format!("{}", time.format(&format));
-        Box::new(Self { time, format: format.to_string()})
+        let time = format!("{}", time.format(&format));
+        Box::new(Self {
+            time,
+            format: format.to_string(),
+        })
     }
 }
 
 impl fmt::Display for TimePlugin {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-	write!(f, "{}", self.time)
+        write!(f, "{}", self.time)
     }
 }
 
 impl Update for TimePlugin {
     fn refresh(&mut self) {
-	let dt: DateTime<Local> = Local::now();
-	self.time = format!("{}", dt.format(&self.format));
+        let dt: DateTime<Local> = Local::now();
+        self.time = format!("{}", dt.format(&self.format));
     }
 }
 
 impl Default for TimePlugin {
     fn default() -> TimePlugin {
-	let dt: DateTime<Local> = Local::now();
-	let format = "%A %D %_I:%M:%S %P".to_string();
-	TimePlugin {
-	    time: format!("{}", dt.format(&format)),
-	    format,
-	}
+        let dt: DateTime<Local> = Local::now();
+        let format = "%A %D %_I:%M:%S %P".to_string();
+        TimePlugin {
+            time: format!("{}", dt.format(&format)),
+            format,
+        }
     }
 }
