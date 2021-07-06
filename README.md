@@ -13,6 +13,6 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 
 	[dependencies]
-	redblocks = 0.2.1
+	redblocks = 0.2.2
 
 for configuratoin details please see the crate [documentation](https://docs.rs/redblocks/).
