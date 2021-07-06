@@ -19,7 +19,7 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
-redblocks = 0.2.0
+redblocks = 0.2.1
 ```
 # Using Redblocks
 Redblocks works on the principle of Widgets and Plugins. Widgets handles displaying the Plugin and timeing information. Plugins handle the actual data you watnt to display as how that information should be updated.
@@ -83,7 +83,7 @@ impl Widget {
         }
     }
 
-        /// keep the duration to above 500ms as this is the sleep duration for the main event loop
+        /// keep the interval to above 500ms as this is the sleep duration for the main event loop
     pub fn new_mili(content: Box<dyn Update>, intervel: u64) -> Widget {
 	Widget {
 	    content,

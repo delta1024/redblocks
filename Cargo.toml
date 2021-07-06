@@ -1,6 +1,6 @@
 [package]
 name = "redblocks"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Jacob Stannix <jakestannix at gmail dot com>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
@@ -11,3 +11,4 @@ repository = "https://github.com/delta1024/redblocks"
 [dependencies]
 chrono = "0.4"
 sysinfo = "0.18.2"
+battery = "0.7.8"

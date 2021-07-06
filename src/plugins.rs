@@ -7,12 +7,9 @@ First you will need to create a struct to hold the information you wish displaye
 ## Example Plugin
 For the following example we are going to be creating a simple widget that couts how many seconds the status blocks have been running.
 ```no_run
-#[macro_use]
-extern crate redblocks;
 
 use redblocks::Update;
 
-use redblocks::Widget;
 use std::fmt::{self, Display};
 
 struct Counter(u64);
@@ -39,37 +36,78 @@ impl Update for Counter {
     }
 }
 
-fn main() {
-
-    // set the update intervel in seconds
-    let update_intervel = 1;
-
-    // create the plugin
-    let counter_plugin = Counter::new();
-
-    // create the widget
-    let counter_widget = Widget::new(counter_plugin, update_intervel);
-    let plugins = vec![counter_widget];
-
-    // to change the delimater between plugins use start_bar!{plugins, "delimater"}
-    start_bar!(plugins);
-     
-    // if you want a custom delimetor use the following instead
-    // start_bar!(plugins, "custom delimetor here");
-
-}
-
 ```
 */
 use crate::Update;
 use std::fmt;
 use sysinfo::{ProcessorExt, System, SystemExt};
 use chrono::{Local, DateTime};
-use std::fmt::Display;
+use battery::{Manager, Battery};
 
 #[doc(inline)]
 pub use chrono::format::strftime;
 
+/** # Battery Monitor
+displays in percent
+```no_run
+#[macro_use]
+extern crate redblocks;
+
+use redblocks::{Widget, plugins::BatPlugin};
+
+fn main() {
+    let widgets = vec![
+        Widget::new(BatPlugin::new(), 1),
+    ];
+
+    start_bar!(widgets);
+}
+
+```
+*/
+pub struct BatPlugin {
+    manager: Manager,
+    batteries: Vec<Battery>,
+}
+
+impl BatPlugin {
+    pub fn new () -> Box<BatPlugin> {
+	let manager = Manager::new().unwrap();
+	let batteries = manager.batteries().unwrap();
+	let batteries = {
+	    let mut vec = Vec::new();
+	    for i in batteries {
+		vec.push(i.unwrap());
+	    }
+	    vec
+	};
+	Box::new(
+	    BatPlugin {
+		manager,
+		batteries,
+	    }
+	)
+    }
+}
+ 
+use battery::units::ratio::percent;
+impl fmt::Display for BatPlugin {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+	let mut m = String::new();
+	for i in &self.batteries { 
+	    m.push_str(&i.state_of_charge().get::<percent>().to_string());
+	}
+	write!(f, "{} %", m)
+    }
+}
+
+impl Update for BatPlugin {
+    fn refresh(&mut self) {
+	for i in &mut self.batteries {
+	    self.manager.refresh(i).unwrap();
+	}
+    }
+}
 /** # Cpu Monitor
 ## Example
 ```no_run
@@ -143,6 +181,7 @@ impl MemPlugin {
         Box::new(MemPlugin { mem: System::new() })
     }
 }
+
 impl fmt::Display for MemPlugin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let usage = self.mem.get_used_memory() as f64;
@@ -220,7 +259,7 @@ impl TimePlugin {
     }
 }
 
-impl Display for TimePlugin {
+impl fmt::Display for TimePlugin {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 	write!(f, "{}", self.time)
     }
