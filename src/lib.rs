@@ -20,7 +20,7 @@ To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
 redblocks = 0.1.43
-```R
+```
 # Using Redblocks
 Redblocks works on the principle of Widgets and Plugins. Widgets handles displaying the Plugin and timeing information. Plugins handle the actual data you watnt to display as how that information should be updated.
 Currently the following plugins are avalible, please see their respecive module for more information:
