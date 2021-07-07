@@ -19,15 +19,17 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
-redblocks = 0.2.3
+redblocks = 0.2.31
 ```
 # Using Redblocks
-Redblocks works on the principle of Widgets and Plugins. Widgets handles displaying the Plugin and timeing information. Plugins handle the actual data you watnt to display as how that information should be updated. If you wish to display two or more plugins in the same widget you can use a [Bridge].
+Redblocks works on the principle of Widgets and Plugins. Widgets hold the Plugins and handles timeing information. Plugins handle the actual data you watnt to display as well as how that information should be updated. If you wish to display two or more plugins in the same widget you can use a [Bridge] with [SubWidget]s.
 Currently the following plugins are avalible, please see their respective documentation for more information:
-* cpu
-* memory usage
-* time display
-* battery percent
+* [cpu](crate::plugins::CpuPlugin)
+* [memory usager](crate::plugins::MemPlugin)
+* [time display](crate::plugins::TimePlugin)
+* [battery](crate::plugins::BatPlugin)
+    * percent
+    * time remaining
 
 ## Example
 ```no_run
@@ -37,7 +39,7 @@ extern crate redblocks;
 use redblocks::{Widget, plugins::{TimePlugin, MemPlugin, CpuPlugin}};
 
 fn main() {
-    let time = Widget::new(TimePlugin::new("%A %D %_I:%M:%S %P"), 1);
+    let time = Widget::new(TimePlugin::new("%A %D %_I:%M:%S %P"), 1); // formats to "Saturday 06/26/2021 3:41:48 pm"
 
     let cpu = Widget::new_mili(CpuPlugin::new(), 750);
 
@@ -49,7 +51,7 @@ fn main() {
 }
 ```
 
-# Wishlist
+# WishliCst
 * internel xset root function
 */
 
@@ -118,7 +120,7 @@ impl SubWidget {
     }
 }
 
-/** Allows for two or more plugins to be displayed side by side with no seperator; [SubWidgets] share the same timer
+/** Allows for two or more plugins to be displayed side by side with no seperator; [SubWidget]s share the same timer
 ```no_run
 #[macro_use]
 extern crate redblocks;

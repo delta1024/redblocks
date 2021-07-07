@@ -1,6 +1,6 @@
 [package]
 name = "redblocks"
-version = "0.2.3"
+version = "0.2.31"
 authors = ["Jacob Stannix <jakestannix at gmail dot com>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
