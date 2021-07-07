@@ -1,7 +1,7 @@
 /*!# About
 Redblocks is a library inspired by dwmblocks for creating your own status blocks that writes to XROOTNAME?. Primaraly intended for along side the [Penrose] library.
 
-# Dependencies 
+# Dependencies
 * xsetroot
 # Usage Requirments
 Using redblock is intended to be simple, baring creating custom modules; if this is not the case I would consider that a bug and would engorage you to raise the issue as such.
@@ -19,11 +19,11 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
-redblocks = 0.2.2
+redblocks = 0.2.3
 ```
 # Using Redblocks
-Redblocks works on the principle of Widgets and Plugins. Widgets handles displaying the Plugin and timeing information. Plugins handle the actual data you watnt to display as how that information should be updated.
-Currently the following plugins are avalible, please see their respecive module for more information:
+Redblocks works on the principle of Widgets and Plugins. Widgets handles displaying the Plugin and timeing information. Plugins handle the actual data you watnt to display as how that information should be updated. If you wish to display two or more plugins in the same widget you can use a [Bridge].
+Currently the following plugins are avalible, please see their respective documentation for more information:
 * cpu
 * memory usage
 * time display
@@ -38,9 +38,9 @@ use redblocks::{Widget, plugins::{TimePlugin, MemPlugin, CpuPlugin}};
 
 fn main() {
     let time = Widget::new(TimePlugin::new("%A %D %_I:%M:%S %P"), 1);
-   
+
     let cpu = Widget::new_mili(CpuPlugin::new(), 750);
-    
+
     let mem = Widget::new(MemPlugin::new(), 2);
 
     let plugins = vec![mem, cpu, time];
@@ -53,8 +53,7 @@ fn main() {
 * internel xset root function
 */
 
-
-use std::fmt::Display;
+use std::fmt::{self, Display};
 use std::time::{Duration, Instant};
 
 pub mod plugins;
@@ -62,10 +61,15 @@ pub mod plugins;
 /// Vec\<Widget\>
 pub type StatusBar = Vec<Widget>;
 
+/// Refreshes the widget plugin.
+pub trait Update: Display {
+    fn refresh(&mut self);
+}
+
 /// Holds [StatusBar]
 pub struct Bar(pub StatusBar);
 
-/// Handles timing and calling updates for plugins 
+/// Handles timing and calling updates for plugins
 pub struct Widget {
     /// holds the plugin
     pub content: Box<dyn Update>,
@@ -84,13 +88,13 @@ impl Widget {
         }
     }
 
-        /// keep the interval to above 500ms as this is the sleep duration for the main event loop
+    /// keep the interval to above 500ms as this is the sleep duration for the main event loop
     pub fn new_mili(content: Box<dyn Update>, intervel: u64) -> Widget {
-	Widget {
-	    content,
-	    intervel: Duration::from_millis(intervel),
-	    elapsed: Instant::now(),
-	}
+        Widget {
+            content,
+            intervel: Duration::from_millis(intervel),
+            elapsed: Instant::now(),
+        }
     }
     pub fn update(&mut self) {
         if self.elapsed.elapsed() >= self.intervel {
@@ -101,9 +105,87 @@ impl Widget {
     }
 }
 
-/// Refreshes the widget plugin.
-pub trait Update: Display {
-    fn refresh(&mut self);
+/// A [Widget] without any timeing control, only for use within a [Bridge]
+pub struct SubWidget(Box<dyn Update>);
+
+impl SubWidget {
+    pub fn new(plugin: Box<dyn Update>) -> Box<SubWidget> {
+        Box::new(SubWidget(plugin))
+    }
+
+    fn update(&mut self) {
+        self.0.refresh()
+    }
+}
+
+/** Allows for two or more plugins to be displayed side by side with no seperator; [SubWidgets] share the same timer
+```no_run
+#[macro_use]
+extern crate redblocks;
+
+use redblocks::{
+    Widget, SubWidget, Bridge,
+    plugins::BatPlugin};
+
+fn main() {
+    let joined = vec![SubWidget::new(BatPlugin::new_percent()), SubWidget::new(BatPlugin::new_time())];
+
+    let bridge = Bridge::new(joined);
+
+    let bar = vec![Widget::new(bridge, 1)];
+
+    start_bar!(bar);
+}
+```
+*/
+pub struct Bridge(Vec<Box<SubWidget>>, Option<String>);
+
+impl Bridge {
+    /// creates a new [Bridge] with no delimiter
+    pub fn new(widgets: Vec<Box<SubWidget>>) -> Box<Bridge> {
+        Box::new(Bridge(widgets, None))
+    }
+
+    /// creates a [Bridge] with the default delimiter
+    pub fn new_with_delim(widgets: Vec<Box<SubWidget>>) -> Box<Bridge> {
+	Box::new(Bridge(widgets, Some("|".to_string())))
+    }
+
+    /// creates a [Bridge] with a custom delimiter
+    pub fn new_with_custom_delim(widgets: Vec<Box<SubWidget>>, delim: &str) -> Box<Bridge> {
+        Box::new(Bridge(widgets, Some(delim.to_string())))
+    }
+}
+
+impl fmt::Display for Bridge {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut n = String::new();
+
+        if let Some(delim) = &self.1 {
+            for i in &self.0 {
+                n.push_str(format!("{} {} ", i.0, &delim).as_str());
+            }
+
+	    for _i in delim.chars() {
+		n.pop();
+	    }
+        } else {
+            for i in &self.0 {
+                n.push_str(format!("{}  ", i.0).as_str());
+            }
+        }
+        n.pop();
+
+        write!(f, "{}", n)
+    }
+}
+
+impl Update for Bridge {
+    fn refresh(&mut self) {
+        for i in &mut self.0 {
+            i.update();
+        }
+    }
 }
 
 #[macro_export]
