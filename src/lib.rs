@@ -4,7 +4,7 @@ Redblocks is a library inspired by dwmblocks for creating your own status blocks
 # Dependencies
 * xsetroot
 # Usage Requirments
-Using redblock is intended to be simple, baring creating custom modules; if this is not the case I would consider that a bug and would engorage you to raise the issue as such.
+Using redblock is intended to be simple, baring creating custom pligins; if this is not the case I would consider that a bug and would engorage you to raise the issue as such.
 
 The one caviate to the aformentioned principle is a basic understanding of rust is required to setup and configure your statusbar. You can paruse the [reference] for any concepts you don't understand (baring anyghing specific to [redblocks]). For a more compleate introduction to the language I would encorage you to check out [The Book]. a great place to start learing is [here]; if you need help installing Rust please see the [installation guide].
 
@@ -51,7 +51,7 @@ fn main() {
 }
 ```
 
-# WishliCst
+# Wishlist
 * internel xset root function
 */
 

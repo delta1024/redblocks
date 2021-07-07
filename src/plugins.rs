@@ -45,6 +45,10 @@ use battery::{
     Battery, Manager
 };
 use chrono::{DateTime, Local};
+
+#[cfg(feature = "weather")]
+use openweathermap::Receiver;
+
 use std::fmt;
 use sysinfo::{ProcessorExt, System, SystemExt};
 
@@ -221,7 +225,7 @@ impl fmt::Display for CpuPlugin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Cpu: {}%",
+            "{}%",
             (self.used.get_global_processor_info().get_cpu_usage() as f64 * 100_f64).round()
                 / 100_f64
         )
@@ -357,4 +361,13 @@ impl Default for TimePlugin {
             format,
         }
     }
+}
+
+#[cfg(feature = "weather")]
+/// Weather Plugin
+pub struct WeatherPlugin<T, U, V>{
+    city: u64,
+    receiver: Receiver,
+    future: std::future::Future<Output = String>,
+    output: String,
 }
