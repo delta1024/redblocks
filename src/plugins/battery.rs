@@ -134,7 +134,7 @@ trait BatExt {
                 let duration = value.get::<minute>();
 
                 if duration > 60.0 {
-                    let duration = duration.round() / 60_f32;
+                    let duration = (duration.round() / 60_f32).round();
                     string.push_str(format!("{}h (Charging)", duration).as_str());
                 } else {
                     let duration = duration.round();
