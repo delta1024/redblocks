@@ -1,4 +1,3 @@
-
 use crate::Update;
 use battery::units::time::minute;
 use battery::{
@@ -105,7 +104,50 @@ trait BatExt {
     fn update_time(&self) -> String;
     /// returns the temperature of the battery
     fn update_celcius(&self) -> String;
+
+    /// fomates time to full
+    fn time_to_empty(batteries: &Vec<Battery>) -> String {
+        let mut string = String::new();
+
+        for i in batteries {
+            if let Some(value) = i.time_to_empty() {
+                let duration = value.get::<minute>();
+                if duration > 60.0 {
+                    let duration = (duration.round() / 60_f32).round();
+                    string.push_str(format!("{}h", duration).as_str());
+                } else {
+                    let duration = duration.round();
+
+                    string.push_str(format!("{}m", duration).as_str());
+                }
+            }
+        }
+        string
+    }
+
+    /// fomates time to empty
+    fn time_to_full(batteries: &Vec<Battery>) -> String {
+        let mut string = String::new();
+
+        for i in batteries {
+            if let Some(value) = i.time_to_full() {
+                let duration = value.get::<minute>();
+
+                if duration > 60.0 {
+                    let duration = duration.round() / 60_f32;
+                    string.push_str(format!("{}h (Charging)", duration).as_str());
+                } else {
+                    let duration = duration.round();
+
+                    string.push_str(format!("{}m (Charging)", duration).as_str());
+                }
+            }
+        }
+
+        string
+    }
 }
+
 
 impl BatExt for BatPlugin {
     fn update_percent(&self) -> String {
@@ -117,18 +159,14 @@ impl BatExt for BatPlugin {
     }
 
     fn update_time(&self) -> String {
-        let mut string = String::new();
-
-        for i in &self.batteries {
-            if let Some(value) = i.time_to_empty() {
-                let duration = value.get::<minute>();
-
-                let duration = ((duration.round() / 60_f32) * 100_f32).round() / 100_f32;
-
-                string.push_str(duration.to_string().as_str());
-            }
+        match self.batteries[0].state() {
+            battery::State::Discharging => BatPlugin::time_to_empty(&self.batteries),
+            battery::State::Charging => BatPlugin::time_to_full(&self.batteries),
+            battery::State::Empty => String::from("empty"),
+            battery::State::Full => String::from("Full"),
+            battery::State::__Nonexhaustive => String::from("nonexhastive"),
+            battery::State::Unknown => String::from("Unknown"),
         }
-        string
     }
 
     fn update_celcius(&self) -> String {
