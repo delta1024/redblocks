@@ -6,14 +6,13 @@ Redblocks is a library inspired by dwmblocks for creating your own status blocks
 # Usage Requirments
 Using redblock is intended to be simple, baring creating custom pligins; if this is not the case I would consider that a bug and would engorage you to raise the issue as such.
 
-The one caviate to the aformentioned principle is a basic understanding of rust is required to setup and configure your statusbar. You can paruse the [reference] for any concepts you don't understand (baring anyghing specific to [redblocks]). For a more compleate introduction to the language I would encorage you to check out [The Book]. a great place to start learing is [here]; if you need help installing Rust please see the [installation guide].
+The one caviate to the aformentioned principle is a basic understanding of rust is required to setup and configure your statusbar. You can paruse the [reference] for any concepts you don't understand (baring anyghing specific to [redblocks](crate)). For a more compleate introduction to the language I would encorage you to check out [The Book]. a great place to start learing is [here]; if you need help installing Rust please see the [installation guide].
 
 [Penrose]: [https://github.com/sminez/penrose]
 [reference]: [https://doc.rust-lang.org/reference/introduction.html]
 [The Book]: [https://www.rust-lang.org/learn]
-[installation guide]:( [https://www.rust-lang.org/tools/install]
+[installation guide]: [https://www.rust-lang.org/tools/install]
 [here]: [https://www.rust-lang.org/learn]
-[redblocks]: crate
 
 # Setup
 To use redblocks add the following to your Cargo.toml.
@@ -23,7 +22,6 @@ redblocks = 0.2.4
 ```
 # Using Redblocks
 Redblocks works on the principle of Widgets and Plugins. Widgets hold the Plugins and handles timeing information. Plugins handle the actual data you watnt to display as well as how that information should be updated. If you wish to display two or more plugins in the same widget you can use a [Bridge] with [SubWidget]s.
-# Plugins
 Currently the following plugins are avalible, please see their respective documentation for more information:
 * [cpu](crate::plugins::CpuPlugin)
 * [memory usager](crate::plugins::MemPlugin)
@@ -32,10 +30,8 @@ Currently the following plugins are avalible, please see their respective docume
     * percent
     * time remaining
     * time to charged
-## Untested
-* [temp](crate::plugins::Celcius)
 
-# Example
+## Example
 ```no_run
 #[macro_use]
 extern crate redblocks;
@@ -57,8 +53,8 @@ fn main() {
 
 # Goals
 * internel xset root function
-* [`penrose`] integration
-* create more plugins
+* [Penrose](https://crates.io/crates/penrose) integration
+* More Plugins
 */
 
 use std::fmt::{self, Display};
