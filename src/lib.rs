@@ -4,9 +4,9 @@ Redblocks is a library inspired by dwmblocks for creating your own status blocks
 # Dependencies
 * xsetroot
 # Usage Requirments
-Using redblock is intended to be simple, baring creating custom pligins; if this is not the case I would consider that a bug and would engorage you to raise the issue as such.
+Using redblock is intended to be simple, baring creating custom plugins. If this is not the case I would consider that a bug and would engorage you to raise the issue as such.
 
-The one caviate to the aformentioned principle is a basic understanding of rust is required to setup and configure your statusbar. You can paruse the [reference] for any concepts you don't understand (baring anyghing specific to [redblocks](crate)). For a more compleate introduction to the language I would encorage you to check out [The Book]. a great place to start learing is [here]; if you need help installing Rust please see the [installation guide].
+The one caviate to the aformentioned principle is a basic understanding of rust is required to setup and configure your statusbar. You can paruse the [reference] for any concepts you don't understand (baring anyghing specific to [redblocks](crate)). For a more compleate introduction to the language I would encorage you to check out [The Book]. A great place to start learing is [here]; if you need help installing Rust please see the [installation guide].
 
 [Penrose]: [https://github.com/sminez/penrose]
 [reference]: [https://doc.rust-lang.org/reference/introduction.html]
@@ -18,7 +18,7 @@ The one caviate to the aformentioned principle is a basic understanding of rust 
 To use redblocks add the following to your Cargo.toml.
 ```Cargo
 [dependencies]
-redblocks = 0.2.4
+redblocks = "0.2.4"
 ```
 # Using Redblocks
 Redblocks works on the principle of Widgets and Plugins. Widgets hold the Plugins and handles timeing information. Plugins handle the actual data you watnt to display as well as how that information should be updated. If you wish to display two or more plugins in the same widget you can use a [Bridge] with [SubWidget]s.
@@ -30,6 +30,14 @@ Currently the following plugins are avalible, please see their respective docume
     * percent
     * time remaining
     * time to charged
+
+[redblocks](crate) also plans to have a number of optional plugins that can be enabled by adding them as features in your Cargo.toml
+
+```Cargo
+[dependencies]
+redblocks = { version = "0.2.4" features="weather" }
+```
+* Weather
 
 ## Example
 ```no_run
@@ -109,7 +117,7 @@ impl Widget {
     }
 }
 
-/// A [Widget] without any timeing control, only for use within a [Bridge]
+/// A [Widget] without any timeing control, intended for use within a [Bridge]
 pub struct SubWidget(Box<dyn Update>);
 
 impl SubWidget {
@@ -152,7 +160,7 @@ impl Bridge {
 
     /// creates a [Bridge] with the default delimiter
     pub fn new_with_delim(widgets: Vec<Box<SubWidget>>) -> Box<Bridge> {
-	Box::new(Bridge(widgets, Some("|".to_string())))
+        Box::new(Bridge(widgets, Some("|".to_string())))
     }
 
     /// creates a [Bridge] with a custom delimiter
@@ -170,9 +178,9 @@ impl fmt::Display for Bridge {
                 n.push_str(format!("{} {} ", i.0, &delim).as_str());
             }
 
-	    for _i in delim.chars() {
-		n.pop();
-	    }
+            for _i in delim.chars() {
+                n.pop();
+            }
         } else {
             for i in &self.0 {
                 n.push_str(format!("{}  ", i.0).as_str());
@@ -201,12 +209,10 @@ macro_rules! start_bar  {
 	use redblocks::Bar;
         let mut bar = Bar($v);
 
-
         let mut comm = Command::new("xsetroot");
         loop {
             let mut output = String::new();
 	    let mut num = 0;
-	    let count = bar.0.iter().count();
 
             for i in &mut bar.0 {
 		if num == 0 {
@@ -241,7 +247,6 @@ macro_rules! start_bar  {
         loop {
             let mut output = String::new();
 	    let mut num = 0;
-	    let count = bar.0.iter().count();
 
             for i in &mut bar.0 {
 		if num == 0 {

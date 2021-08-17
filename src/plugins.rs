@@ -70,6 +70,6 @@ pub use self::time::*;
 #[cfg(feature = "weather")]
 #[doc(hidden)]
 pub mod weather;
-#[cfg(feature = "weather")]
+#[cfg(feature ="weather")]
 #[doc(inline)]
 pub use self::weather::*;
